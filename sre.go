@@ -1,8 +1,8 @@
 /*
 usage: sre S1 [S2]
-S1 can be a regex
+S1 can be a regex, if prefixed with `~/` and suffixed with `/`
 replace all occurences of S1 with S2 in stdin and print to stdout
-if S2 is not provided, all occurences of S1 are removed
+if S2 is not provided or empty, all occurences of S1 are removed
 
 GoFmt
 GoBuildNull
@@ -38,8 +38,8 @@ func main() {
 		S2 = os.Args[2]
 	}
 
-	if strings.HasPrefix(S1, "/") && strings.HasSuffix(S1, "/") {
-		s1 := strings.TrimPrefix(strings.TrimSuffix(S1, "/"), "/")
+	if strings.HasPrefix(S1, "~/") && strings.HasSuffix(S1, "/") {
+		s1 := strings.TrimSuffix(strings.TrimPrefix(S1, "~/"), "/")
 		var err error
 		R1, err = regexp.Compile(s1)
 		if err != nil {
@@ -55,6 +55,9 @@ func main() {
 		if R1 == nil {
 			line2 = strings.ReplaceAll(line1, S1, S2)
 		} else {
+			// https://pkg.go.dev/regexp#Regexp.ReplaceAllLiteralString
+			// https://pkg.go.dev/regexp#Regexp.ReplaceAllString
+
 			line2 = R1.ReplaceAllLiteralString(line1, S2)
 		}
 		fmt.Println(line2)
